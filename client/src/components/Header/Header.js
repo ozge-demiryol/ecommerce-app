@@ -1,22 +1,11 @@
-/*
-  This example requires Tailwind CSS v2.0+ 
-  
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/aspect-ratio'),
-    ],
-  }
-  ```
-*/
+//Components
 import { Fragment, useState } from 'react'
 import { Dialog, Popover, Tab, Transition } from '@headlessui/react'
 import { MenuIcon, SearchIcon, ShoppingBagIcon, XIcon } from '@heroicons/react/outline'
+import { Link } from 'react-router-dom';
+//Context
+import { useContext } from "react"
+import CartContext from "../../contexts/CartProvider"
 
 const navigation = {
   categories: [
@@ -81,7 +70,7 @@ const navigation = {
     
   ],
   pages: [
-    { name: 'Products', href: '#' },
+    { name: 'Products', href: '/products' },
     { name: 'Orders', href: '/orders' },
   ],
 }
@@ -92,7 +81,8 @@ function classNames(...classes) {
 
 export default function Example() {
   const [open, setOpen] = useState(false)
-
+  
+  
   return (
     <div className="bg-white z-50 sticky top-0">
       {/* Mobile menu */}
@@ -175,7 +165,6 @@ export default function Example() {
                             {section.name}
                           </p>
                           <ul
-                            role="list"
                             aria-labelledby={`${category.id}-${section.id}-heading-mobile`}
                             className="mt-6 flex flex-col space-y-6"
                           >
@@ -203,41 +192,12 @@ export default function Example() {
                   </div>
                 ))}
               </div>
-
-              {/* <div className="border-t border-gray-200 py-6 px-4 space-y-6">
-                <div className="flow-root">
-                  <a href="#" className="-m-2 p-2 block font-medium text-gray-900">
-                    Sign in
-                  </a>
-                </div>
-                <div className="flow-root">
-                  <a href="#" className="-m-2 p-2 block font-medium text-gray-900">
-                    Create account
-                  </a>
-                </div>
-              </div>
-
-              <div className="border-t border-gray-200 py-6 px-4">
-                <a href="#" className="-m-2 p-2 flex items-center">
-                  <img
-                    src="https://tailwindui.com/img/flags/flag-canada.svg"
-                    alt=""
-                    className="w-5 h-auto block flex-shrink-0"
-                  />
-                  <span className="ml-3 block text-base font-medium text-gray-900">CAD</span>
-                  <span className="sr-only">, change currency</span>
-                </a>
-              </div> */}
             </div>
           </Transition.Child>
         </Dialog>
       </Transition.Root>
 
       <header className="relative bg-white">
-        <p className="bg-teal-400 h-10 flex items-center justify-center text-sm font-medium text-white px-4 sm:px-6 lg:px-8">
-          Get free delivery on orders over $100
-        </p>
-
         <nav aria-label="Top" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div>
             <div className="h-16 flex items-center">
@@ -298,26 +258,6 @@ export default function Example() {
                               <div className="relative bg-white">
                                 <div className="max-w-7xl mx-auto px-8">
                                   <div className="grid grid-cols-2 gap-y-10 gap-x-8 py-16">
-                                    {/* <div className="col-start-2 grid grid-cols-2 gap-x-8">
-                                      {category.featured.map((item) => (
-                                        <div key={item.name} className="group relative text-base sm:text-sm">
-                                          <div className="aspect-w-1 aspect-h-1 rounded-lg bg-gray-100 overflow-hidden group-hover:opacity-75">
-                                            <img
-                                              src={item.imageSrc}
-                                              alt={item.imageAlt}
-                                              className="object-center object-cover"
-                                            />
-                                          </div>
-                                          <a href={item.href} className="mt-6 block font-medium text-gray-900">
-                                            <span className="absolute z-10 inset-0" aria-hidden="true" />
-                                            {item.name}
-                                          </a>
-                                          <p aria-hidden="true" className="mt-1">
-                                            Shop now
-                                          </p>
-                                        </div>
-                                      ))}
-                                    </div> */}
                                     <div className="row-start-1 grid grid-cols-3 gap-y-10 gap-x-8 text-sm">
                                       {category.sections.map((section) => (
                                         <div key={section.name}>
@@ -325,7 +265,6 @@ export default function Example() {
                                             {section.name}
                                           </p>
                                           <ul
-                                            role="list"
                                             aria-labelledby={`${section.name}-heading`}
                                             className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
                                           >
@@ -366,7 +305,7 @@ export default function Example() {
 
                 {/* Search */}
                 <div className="flex lg:ml-6">
-                  <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
+                  <a href="/" className="p-2 text-gray-400 hover:text-gray-500">
                     <span className="sr-only">Search</span>
                     <SearchIcon className="w-6 h-6" aria-hidden="true" />
                   </a>
@@ -374,14 +313,14 @@ export default function Example() {
 
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
-                  <a href="#" className="group -m-2 p-2 flex items-center">
+                  <Link to ="/cart" className="group -m-2 p-2 flex items-center">
                     <ShoppingBagIcon
                       className="flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500"
                       aria-hidden="true"
                     />
                     <span className="ml-2 text-xs font-medium text-white bg-rose-600 w-5 h-5 flex items-center justify-center rounded-full">0</span>
                     <span className="sr-only">items in cart, view bag</span>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
