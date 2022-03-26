@@ -10,6 +10,7 @@ import Home from "./components/Home/Home";
 import Category from "./components/Category/Category";
 import Cart from "./components/Cart/Cart";
 import {CartProvider} from "./contexts/CartProvider";
+import OrderList from "./components/Order/OrderList";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/categories/:categoryName" element={<Category/>}/>
         {/* Cart */}
         <Route path="/cart" element={<Cart/>}/>
+        <Route path="/orders" element={<OrderList/>}/>
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />  

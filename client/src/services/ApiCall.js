@@ -1,10 +1,3 @@
-// export const getProduct = id => {
-//     fetch(`https://fakestoreapi.com/products/${id}`)
-//       .then((res) => res.json())
-//       .then((data) => console.log(data));
-
-// }
-
 import {baseUrl} from './baseUrl';
 
 export const baseService = {

@@ -13,10 +13,10 @@ const NotFound = () => {
         <p className="font-semibold tracking-wide text-indigo-600 text-sm">
           404 ERROR
         </p>
-        <h1 className="text-5xl mb-3 font-bold tracking-tight text-gray-900">
+        <h1 className="text-5xl w-3/4 md:w-full text-center mb-3 font-bold tracking-tight text-gray-900">
           Page not found.
         </h1>
-        <p className="text-gray-500 font-normal">
+        <p className="text-gray-500 font-normal w-3/4 md:w-full text-center mt-5 md:mt-0">
           Sorry, we couldn't find the page you're looking for.
         </p>
       </div>

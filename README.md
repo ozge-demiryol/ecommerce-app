@@ -9,10 +9,11 @@ Tailwind CSS was used for UI design.
 
 ## Screenshots
 #### Desktop Screenshots
-![ss-desktop](../screenshots/)
+
+![ss-desktop](./screenshots\screenshot-desktop-not-found.png)
 
 #### Mobile Screenshots
-![ss-mobile](../screenshots/)
+![ss-mobile](./screenshots\screenshot-mobile-not-found.png)
 ## Used Technologies
 
 <div align="left">

@@ -4,7 +4,7 @@ import CartContext from "../../contexts/CartProvider";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
-  const [cart, setCart ] = useState([]);
+  const { cart, setCart } = useContext(CartContext)
 
   useEffect(() => {
     fetch(`https://fakestoreapi.com/products`)
@@ -24,13 +24,12 @@ const Products = () => {
                 id: product.id,
                 title: product.title,
                 price: product.price,
+                image:product.image,
                 quantity: 1
             }
 
             setCart([...cart, cartProduct])
         }
-
-        console.log(cart)
   };
 
   return (

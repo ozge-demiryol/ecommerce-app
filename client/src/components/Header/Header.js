@@ -81,8 +81,10 @@ function classNames(...classes) {
 
 export default function Example() {
   const [open, setOpen] = useState(false)
-  
-  
+  const { cart } = useContext(CartContext)
+ 
+  // const cart = JSON.parse(localStorage.getItem('cart'))
+
   return (
     <div className="bg-white z-50 sticky top-0">
       {/* Mobile menu */}
@@ -318,8 +320,9 @@ export default function Example() {
                       className="flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500"
                       aria-hidden="true"
                     />
-                    <span className="ml-2 text-xs font-medium text-white bg-rose-600 w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                    <span className={classNames(cart.length>0 ? "ml-2 text-xs font-medium text-white bg-rose-600 w-5 h-5 flex items-center justify-center rounded-full" : "hidden" )}>{ cart.length }</span>
                     <span className="sr-only">items in cart, view bag</span>
+                    {/* "ml-2 text-xs font-medium text-white bg-rose-600 w-5 h-5 flex items-center justify-center rounded-full" */}
                   </Link>
                 </div>
               </div>
