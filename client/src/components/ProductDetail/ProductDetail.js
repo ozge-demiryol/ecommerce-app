@@ -1,6 +1,5 @@
 import { useState, useEffect,useContext } from "react";
-import { StarIcon } from "@heroicons/react/solid";
-import { Link, Outlet, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import NotFound from "../NotFound/NotFound";
 //Context
 import CartContext from "../../contexts/CartProvider";
@@ -17,37 +16,50 @@ const ProductDetail = () => {
     return classes.filter(Boolean).join(" ");
   }
   useEffect(() => {
-    fetch(`https://fakestoreapi.com/products/${productId}`)
-      .then((res) => res.json())
-      .then((data) => setProduct(data),setIsLoaded(true) );
-  }, [productId]);
+    getProducts();
+  });
 
-  const addToCart = (product) => {
-    let cartProduct = cart.find(q => q.id === product.id)
-
-    if (cartProduct) {
-        cartProduct.quantity += 1
-
-        setCart([...cart])
-    } else {
-        const cartProduct = {
-            id: product.id,
-            title: product.title,
-            price: product.price,
-            image:product.image,
-            quantity: 1
-        }
-
-        setCart(prev => [...prev, cartProduct])
-    }
-      console.log(cart)
-    
+//#region Fetch data
+const getProducts = async () => {
+  try {
+      const data = await baseService.get(`/products/${productId}`);
+      setIsLoaded(true)
+      setProduct(data);
+  } catch (err) {
+      console.log('[ERROR]: ', err);
+  }
 }
+//#endregion
 
+ //#region Add to cart
+ const addToCart = (product) => {
+   let cartProduct = cart.find(q => q.id === product.id)
+
+   if (cartProduct) {
+       cartProduct.quantity += 1
+
+       setCart([...cart])
+   } else {
+       const cartProduct = {
+           id: product.id,
+           title: product.title,
+           price: product.price,
+           image:product.image,
+           quantity: 1
+       }
+
+       setCart(prev => [...prev, cartProduct])
+   }
+     console.log(cart)
+   
+}
+ //#endregion
+  
   return (
-    <div className="bg-white">
+    <div className="bg-gray-50">
       {product ? (
         <div className={classNames(isLoaded ? "pt-6" : "hidden")}>
+          {/* Breadcrumb */}
           <nav aria-label="Breadcrumb">
             <ol className="max-w-2xl mx-auto px-4 flex items-center space-x-2 sm:px-6 lg:max-w-7xl lg:px-8">
               <li>
@@ -74,7 +86,7 @@ const ProductDetail = () => {
               <li>
                 <div className="flex items-center">
                   <Link
-                    to="/categories/:category"
+                    to={`/categories/${product.category}`}
                     className="mr-2 text-sm font-medium text-gray-900"
                   >
                     {product.category}
@@ -104,26 +116,26 @@ const ProductDetail = () => {
             </ol>
           </nav>
           {/* Product info */}
-          <div className="max-w-2/3 flex flex-col md:flex-row items-center justify-center pt-10 pb-16 px-4 sm:px-6 lg:max-w-7xl lg:pt-16 lg:pb-24 lg:px-8">
-            <div className="w-1/2 lg:border-r lg:border-gray-200 lg:pr-8">
+          <div className=" flex flex-col mx-auto md:flex-row items-center justify-center pt-10 pb-16 px-4 sm:px-6 max-w-2/3 lg:pt-16 lg:pb-24 lg:px-8">
+            <div className="lg:pr-14">
               <img
                 src={product.image}
                 alt=""
-                className="w-full h-full object-center object-contain"
+                className="w-full lg:w-96 h-full object-center object-contain rounded-lg"
               />
             </div>
             {/* Product detail */}
-            <div className="mt-4 lg:mt-0 pl-8">
+            <div className="mt-4 lg:mt-0 px-5 lg:py-10 lg:pl-20 lg:max-w-2xl lg:border-l lg:border-gray-200">
               <h1 className="text-2xl font-extrabold mb-5 tracking-tight text-gray-900 sm:text-3xl">
                 {product.title}
               </h1>
               <p className="text-3xl text-gray-900">{product.price}$</p>
 
               {/* Reviews */}
-              <div className="mt-6">
-                <h3 className="sr-only">Reviews</h3>
+              <div className="mt-6 w-1/2">
                 <div className="flex items-center">
-                  <div className="flex items-center">
+                    
+                  {/* <div className={product.rating ? "flex items-center" : "hidden"}>
                     {[0, 1, 2, 3, 4].map((rating) => (
                       <StarIcon
                         key={rating}
@@ -137,19 +149,16 @@ const ProductDetail = () => {
                       />
                     ))}
                   </div>
-                  <p className="sr-only">
-                    {product.rating?.rate} out of 5 stars
-                  </p>
                   <p className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">
                     {product.rating?.count} reviews
-                  </p>
+                  </p> */}
                 </div>
               </div>
               {/* Description and details */}
               <div>
-                <h3 className="font-semibold mb-2 mt-5">Description</h3>
+                <h3 className="font-semibold mb-2 mt-5 text-justify">Description</h3>
                 <div className="space-y-6">
-                  <p className="text-base text-gray-500">
+                  <p className="text-base text-gray-500 ">
                     {product.description}
                   </p>
                 </div>
@@ -170,7 +179,6 @@ const ProductDetail = () => {
       ) : (
         <NotFound />
       )}
-      <Outlet />
     </div>
   );
 }

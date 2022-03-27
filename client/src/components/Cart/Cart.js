@@ -1,29 +1,67 @@
-import { useContext, useEffect } from "react";
+import { useContext} from "react";
 import CartContext from "../../contexts/CartProvider";
 import { Link } from "react-router-dom";
-import {InformationCircleIcon} from '@heroicons/react/outline'
+import { InformationCircleIcon } from "@heroicons/react/outline";
+import { baseService } from "../../services/ApiCall";
+
 
 const Cart = () => {
   const { cart, setCart } = useContext(CartContext);
   // const cart = JSON.parse(localStorage.getItem('cart'));
-  useEffect(() => {}, []);
-  console.log(cart);
 
-  const calculateSubtotal = cart.reduce((a, b) => a + b.price * b.quantity, 0);
-
+  //#region Total price and shipping calculating operations
+  const calculateSubtotal = parseFloat(cart.reduce((a, b) => a + b.price * b.quantity, 0).toFixed(2));
   //orders under 100$ shipping charge is 10% of total charge
   const calculateShipping = (total) => {
+    let price = parseFloat(total);
     let res;
-    parseFloat(total) >= 100 ? (res = 0 ) : (res = (parseFloat(total) / 10).toFixed(2));
+    price >= 100 ? (res = 0) : (res = (price / 10).toFixed(2));
     return parseFloat(res);
   };
+  //#endregion
 
+  //#region Total amount to be paid
+  const calculateTotal = () => {
+    return parseFloat((calculateSubtotal + calculateShipping(calculateSubtotal)).toFixed(2));
+  };
+  //#endregion
   
-  //Total amount to be paid
-  const calculateTotal = () => {return parseFloat(calculateSubtotal + calculateShipping(calculateSubtotal))};
+  //#region Amount of items in cart
+  const increaseQuantity = (product) => {
+    setCart((prev) => {
+      let cartItem = prev.find((q) => q.id === product.id);
+      product.quantity < 10 ? (cartItem.quantity += 1) : cartItem.quantity = 10;
+      return [...prev];
+    });
+  };
+  const decreaseQuantity = (product) => {
+    setCart((prev) => {
+      let cartItem = prev.find((q) => q.id === product.id);
+      product.quantity > 2 ? (cartItem.quantity -= 1) : (cartItem.quantity = 1);
+      return [...prev];
+    });
+  };
 
-  const addOrder = () => {};
-  const removeItem = () => {};
+  //#endregion
+  
+    const addOrder = async () => {
+    try {
+        if (cart.length > 0) {
+            const products=cart.map(x => ({productId:x.id,quantity:x.quantity}))
+            const d= new Date();
+            const data = {userId:2, date: d, products:products };
+            await baseService.post('/carts', data)
+            console.log("Successfully added to cart", data)
+            setCart([]);
+        } else {
+            throw new Error('[ERROR]: Cart is empty');
+        }
+    } catch (err) {
+        console.log('[ERROR]: ', err);
+    }
+    // console.log(cart);
+}
+  const removeItem = (id) => {setCart(prev => prev.filter(q => q.id !== id))};
 
   return (
     <>
@@ -34,15 +72,21 @@ const Cart = () => {
               Shopping Cart
             </h1>
           </div>
-          <div className={cart.length>0 ? "hidden" : "flex items-center min-w-full p-3 mt-4 rounded-md bg-indigo-100"}>
-              <InformationCircleIcon className="h-5 w-5 mr-4 text-indigo-700"/>
-                <p className="text-md font-semibold text-indigo-800">
-                  Your cart is empty.
-                </p>
-              </div>
-          <div className="flex flex-col justify-between md:flex-row">
+          <div
+            className={
+              cart.length > 0
+                ? "hidden"
+                : "flex items-center min-w-full p-3 mt-4 rounded-md bg-indigo-100"
+            }
+          >
+            <InformationCircleIcon className="h-5 w-5 mr-4 text-indigo-700" />
+            <p className="text-md font-semibold text-indigo-800">
+              Your cart is empty.
+            </p>
+          </div>
+          <div className="flex flex-col flex-grow justify-between md:flex-row">
             {/* Products */}
-            <div className="flex flex-col py-6 md:py-0 border-t border-gray-200">
+            <div className="flex flex-col md:w-2/3 py-6 md:py-0 border-t border-gray-200">
               {cart &&
                 cart.map((product) => (
                   <div
@@ -67,13 +111,20 @@ const Cart = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex flex-1 items-end justify-between text-sm">
-                        <p className="text-gray-500">Qty {product.quantity}</p>
-
+                      <div className="flex flex-1 mt-5 items-end justify-between text-sm">
+                        <div className="flex items-center">
+                          <button onClick={() => decreaseQuantity(product)} className="flex items-center justify-center w-6 h-6 pb-1 rounded-full bg-indigo-100  font-bold text-indigo-600 active:bg-indigo-300">
+                            -
+                          </button>
+                          <p className="text-gray-500 px-3 ">{product.quantity}</p>
+                          <button onClick={() => increaseQuantity(product)} className="flex items-center justify-center w-6 h-6 pb-1 rounded-full bg-indigo-100  font-bold text-indigo-600 active:bg-indigo-300">
+                            +
+                          </button>
+                        </div>
                         <div className="flex">
                           <button
                             type="button"
-                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                            className="font-medium text-indigo-600 hover:text-indigo-400"
                             onClick={() => removeItem(product.id)}
                           >
                             Remove
@@ -88,7 +139,7 @@ const Cart = () => {
             <div
               className={
                 cart.length > 0
-                  ? "flex flex-col py-8 px-10 lg:px-14 bg-gray-50 rounded-lg h-max md:grow md:ml-10"
+                  ? "flex flex-col py-8 lg:px-14 bg-gray-50 rounded-lg h-max md:w-1/3 md:ml-10"
                   : "hidden"
               }
             >
@@ -96,7 +147,7 @@ const Cart = () => {
               <div className="flex justify-between text-sm border-b border-gray-300 py-4">
                 <p className="text-gray-500 font-medium">Subtotal</p>
                 <p className="text-gray-900 font-semibold">
-                  ${calculateSubtotal}
+                  {calculateSubtotal} $
                 </p>
               </div>
               <div className="flex justify-between text-sm border-b border-gray-300 py-4">
@@ -108,13 +159,10 @@ const Cart = () => {
               {/* Total */}
               <div className="flex justify-between text-md text-gray-900 font-semibold py-5">
                 <p>Total</p>
-                <p className="">${calculateTotal()}</p>
+                <p className="">{calculateTotal()} $</p>
               </div>
-              {/* <p className="mt-0.5 text-sm text-gray-500">
-                Shipping and taxes calculated at checkout.
-              </p> */}
               <div className="mt-6 flex flex-col">
-                <button className="rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">
+                <button className="rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700" onClick={addOrder}>
                   Checkout
                 </button>
                 <button
@@ -133,7 +181,7 @@ const Cart = () => {
                   or
                   <Link
                     to="/products"
-                    className="font-medium text-indigo-600 hover:text-indigo-500 ml-2"
+                    className="font-medium text-indigo-600 hover:text-indigo-400 ml-2"
                   >
                     Continue Shopping<span aria-hidden="true"> &rarr;</span>
                   </Link>
