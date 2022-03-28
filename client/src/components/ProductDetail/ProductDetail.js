@@ -50,7 +50,6 @@ const getProducts = async () => {
 
        setCart(prev => [...prev, cartProduct])
    }
-     console.log(cart)
    
 }
  //#endregion
@@ -110,7 +109,7 @@ const getProducts = async () => {
                   aria-current="page"
                   className="font-medium text-gray-500 hover:text-gray-600"
                 >
-                  {product.title}
+                  {product.name}
                 </Link>
               </li>
             </ol>

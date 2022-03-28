@@ -1,9 +1,7 @@
 import { useEffect, useState, useContext } from "react";
-import { useParams,Link, useNavigate } from "react-router-dom";
-import NotFound from '../NotFound/NotFound'
+import { useParams, useNavigate } from "react-router-dom";
 import ProductCard from "../ProductCard/ProductCard";
 import CartContext from "../../contexts/CartProvider";
-import { Fragment } from "react/cjs/react.production.min";
 
 const Category = () => {
   const [products, setProducts] = useState([]);
@@ -51,8 +49,8 @@ const goToDetail = (id) => {
   };
 
   return (
-    <Fragment className="bg-gray-50">
-      <main className="mx-auto px-4 sm:px-12 lg:px-8">
+    <main className="bg-gray-50">
+      <section className="mx-auto px-4 sm:px-12 lg:px-8">
         <h1 className="pt-10 text-3xl font-extrabold text-gray-900">
           {capitalize(categoryName)}
         </h1>
@@ -82,8 +80,8 @@ const goToDetail = (id) => {
               </div>
             ))}
         </div>
-      </main>
-    </Fragment>
+      </section>
+    </main>
   );
 };
 

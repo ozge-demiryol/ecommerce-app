@@ -13,6 +13,7 @@ const Categories = () => {
     try {
         const data = await baseService.get("/products/categories");
         setCategories(data);
+        console.log(data);
         setIsLoaded(true);
     } catch (err) {
         console.log('[ERROR]: ', err);
@@ -31,7 +32,7 @@ const Categories = () => {
                     alt=""
                     /> Loading...
           </div>
-          <div className="mt-6 space-y-12 lg:space-y-0 lg:grid lg:grid-cols-4 lg:gap-x-6">
+          <div className="mt-6 space-y-12 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-x-6">
             {categories.map((category,key) => (
               <div key={key} className="group relative">
                 <div className="relative w-full h-80 bg-white rounded-lg overflow-hidden group-hover:opacity-75 sm:aspect-w-2 sm:aspect-h-1 sm:h-64 lg:aspect-w-1 lg:aspect-h-1">
