@@ -42,8 +42,9 @@ const getProducts = async () => {
         } else {
             const cartProduct = {
                 id: product.id,
-                title: product.name,
-                price: product.unitPrice,
+                title: product.title,
+                price: product.price,
+                image:product.image,
                 quantity: 1
             }
 

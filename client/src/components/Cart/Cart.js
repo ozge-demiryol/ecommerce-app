@@ -1,16 +1,27 @@
-import { useContext} from "react";
+import { useState, useContext, Fragment } from "react";
 import CartContext from "../../contexts/CartProvider";
 import { Link } from "react-router-dom";
-import { InformationCircleIcon } from "@heroicons/react/outline";
+import {
+  InformationCircleIcon,
+  CheckCircleIcon,
+} from "@heroicons/react/outline";
+import { Dialog, Transition } from "@headlessui/react";
 import { baseService } from "../../services/ApiCall";
-
 
 const Cart = () => {
   const { cart, setCart } = useContext(CartContext);
-  // const cart = JSON.parse(localStorage.getItem('cart'));
+  const [isOpen, setIsOpen] = useState(false);
+
+  //#region Close modal
+  const closeModal = () => {
+    setIsOpen(false);
+  };
+  //#endregion
 
   //#region Total price and shipping calculating operations
-  const calculateSubtotal = parseFloat(cart.reduce((a, b) => a + b.price * b.quantity, 0).toFixed(2));
+  const calculateSubtotal = parseFloat(
+    cart.reduce((a, b) => a + b.price * b.quantity, 0).toFixed(2)
+  );
   //orders under 100$ shipping charge is 10% of total charge
   const calculateShipping = (total) => {
     let price = parseFloat(total);
@@ -22,15 +33,19 @@ const Cart = () => {
 
   //#region Total amount to be paid
   const calculateTotal = () => {
-    return parseFloat((calculateSubtotal + calculateShipping(calculateSubtotal)).toFixed(2));
+    return parseFloat(
+      (calculateSubtotal + calculateShipping(calculateSubtotal)).toFixed(2)
+    );
   };
   //#endregion
-  
+
   //#region Amount of items in cart
   const increaseQuantity = (product) => {
     setCart((prev) => {
       let cartItem = prev.find((q) => q.id === product.id);
-      product.quantity < 10 ? (cartItem.quantity += 1) : cartItem.quantity = 10;
+      product.quantity < 10
+        ? (cartItem.quantity += 1)
+        : (cartItem.quantity = 10);
       return [...prev];
     });
   };
@@ -43,25 +58,36 @@ const Cart = () => {
   };
 
   //#endregion
-  
-    const addOrder = async () => {
+
+  //#region Remove item from cart
+  const removeItem = (id) => {
+    setCart((prev) => prev.filter((q) => q.id !== id));
+  };
+  //#endregion
+
+  //#region Add order
+  const addOrder = async () => {
     try {
-        if (cart.length > 0) {
-            const products=cart.map(x => ({productId:x.id,quantity:x.quantity}))
-            const d= new Date();
-            const data = {userId:2, date: d, products:products };
-            await baseService.post('/carts', data)
-            console.log("Successfully added to cart", data)
-            setCart([]);
-        } else {
-            throw new Error('[ERROR]: Cart is empty');
-        }
+      if (cart.length > 0) {
+        const products = cart.map((x) => ({
+          productId: x.id,
+          quantity: x.quantity,
+        }));
+        const d = new Date();
+        const data = { userId: 2, date: d, products: products };
+        await baseService.post("/carts", data);
+        console.log("Successfully added to cart", data);
+        setCart([]);
+        setIsOpen(true);
+      } else {
+        throw new Error("[ERROR]: Cart is empty");
+      }
     } catch (err) {
-        console.log('[ERROR]: ', err);
+      console.log("[ERROR]:", err);
     }
     // console.log(cart);
-}
-  const removeItem = (id) => {setCart(prev => prev.filter(q => q.id !== id))};
+  };
+  //#endregion
 
   return (
     <>
@@ -72,6 +98,69 @@ const Cart = () => {
               Shopping Cart
             </h1>
           </div>
+          {/*#region Order Successfully added to cart*/}
+          <Transition appear show={isOpen} as={Fragment}>
+            <Dialog
+              as="div"
+              className="fixed inset-0 z-10 overflow-y-auto"
+              onClose={closeModal}
+            >
+              <div className="min-h-screen px-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Dialog.Overlay className="fixed inset-0 bg-black/40"/>
+                </Transition.Child>
+
+                {/* This element is to trick the browser into centering the modal contents. */}
+                <span
+                  className="inline-block h-screen align-middle"
+                  aria-hidden="true"
+                >
+                  &#8203;
+                </span>
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <div className="inline-block w-full max-w-md py-8 my-8 overflow-hidden text-center align-middle transition-all transform bg-white shadow-xl rounded-lg">
+                    <CheckCircleIcon className="w-14 h-14 text-indigo-600 text-center mx-auto mb-4" />
+                    <Dialog.Title
+                      as="h3"
+                      className="text-lg font-medium leading-6 text-gray-900 text-center"
+                    >
+                      Thank you!
+                    </Dialog.Title>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500 w-4/5 m-auto mb-5">
+                        Your order has been successfully created. We’ve sent you
+                        an email with all of the details of your order.
+                      </p>
+                    </div>
+                    <Link
+                      to="/"
+                      className="text-indigo-600 tracking-tight font-semibold hover:text-indigo-400"
+                    >
+                      Go to home page
+                    </Link>
+                  </div>
+                </Transition.Child>
+              </div>
+            </Dialog>
+          </Transition>
+          {/*#endregion */}
+
           <div
             className={
               cart.length > 0
@@ -113,11 +202,19 @@ const Cart = () => {
                       </div>
                       <div className="flex flex-1 mt-5 items-end justify-between text-sm">
                         <div className="flex items-center">
-                          <button onClick={() => decreaseQuantity(product)} className="flex items-center justify-center w-6 h-6 pb-1 rounded-full bg-indigo-100  font-bold text-indigo-600 active:bg-indigo-300">
+                          <button
+                            onClick={() => decreaseQuantity(product)}
+                            className="flex items-center justify-center w-6 h-6 pb-1 rounded-full bg-indigo-100  font-bold text-indigo-600 active:bg-indigo-300"
+                          >
                             -
                           </button>
-                          <p className="text-gray-500 px-3 ">{product.quantity}</p>
-                          <button onClick={() => increaseQuantity(product)} className="flex items-center justify-center w-6 h-6 pb-1 rounded-full bg-indigo-100  font-bold text-indigo-600 active:bg-indigo-300">
+                          <p className="text-gray-500 px-3 ">
+                            {product.quantity}
+                          </p>
+                          <button
+                            onClick={() => increaseQuantity(product)}
+                            className="flex items-center justify-center w-6 h-6 pb-1 rounded-full bg-indigo-100  font-bold text-indigo-600 active:bg-indigo-300"
+                          >
                             +
                           </button>
                         </div>
@@ -139,7 +236,7 @@ const Cart = () => {
             <div
               className={
                 cart.length > 0
-                  ? "flex flex-col py-8 lg:px-14 bg-gray-50 rounded-lg h-max md:w-1/3 md:ml-10"
+                  ? "flex flex-col py-8 px-8 lg:px-14 bg-gray-50 rounded-lg h-max md:w-1/3 md:ml-10"
                   : "hidden"
               }
             >
@@ -162,7 +259,10 @@ const Cart = () => {
                 <p className="">{calculateTotal()} $</p>
               </div>
               <div className="mt-6 flex flex-col">
-                <button className="rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700" onClick={addOrder}>
+                <button
+                  className="rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                  onClick={addOrder}
+                >
                   Checkout
                 </button>
                 <button
